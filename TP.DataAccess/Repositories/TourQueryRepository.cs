@@ -2,7 +2,7 @@
 
 namespace TP.DataAccess;
 
-public interface TourRepository
+public interface TourQueryRepository
 {
     ValueTask<List<Tour>> GetAllToursAsync();
 
@@ -11,10 +11,4 @@ public interface TourRepository
     IQueryable<Tour> GetAllToursQueryable();
 
     IQueryable<Tour> GetTourByIdQueryable(Guid id);
-
-    ValueTask<Tour> AddTourAsync(Tour tour);
-
-    ValueTask<Tour> UpdateTourAsync(Tour tour);
-
-    ValueTask DeleteTourAsync(Guid id);
 }

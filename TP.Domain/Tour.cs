@@ -9,6 +9,16 @@ public enum TransportType
     Bike = 500
 }
 
+public enum Popularity
+{
+    NotPopular,
+    SlightlyPopular,
+    ModeratelyPopular,
+    Popular,
+    HighlyPopular,
+    ExtremelyPopular
+}
+
 public class Tour
 {
     public Guid Id { get; set; }
@@ -25,15 +35,17 @@ public class Tour
 
     public string End { get; set; } = string.Empty;
 
-    public decimal Distance { get; set; }
+    public decimal DistanceMeters { get; set; }
 
     public TimeSpan EstimatedTime { get; set; }
 
-    public int? Popularity { get; set; }
+    public Popularity? Popularity { get; set; }
 
     public bool? ChildFriendliness { get; set; }
 
     public DateTime CreatedOn { get; set; }
+
+    public int UnprocessedLogsCounter { get; set; }
 
     public IList<TourLog> TourLogs { get; set; } = new List<TourLog>();
 

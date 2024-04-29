@@ -30,6 +30,7 @@
     <ItemGroup>
       <ProjectReference Include="..\TP.DataAccess\TP.DataAccess.csproj" />
       <ProjectReference Include="..\TP.Database\TP.Database.csproj" />
+      <ProjectReference Include="..\TP.Service.TourLog\TP.Service.TourLog.csproj" />
       <ProjectReference Include="..\TP.Service.Tour\TP.Service.Tour.csproj" />
       <ProjectReference Include="..\TP.Utils\TP.Utils.csproj" />
     </ItemGroup>

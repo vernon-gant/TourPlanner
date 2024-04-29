@@ -21,7 +21,7 @@ public class TourLog
 
     public int DifficultyInt => (int)Difficulty;
 
-    public decimal TotalDistance { get; set; }
+    public decimal TotalDistanceMeters { get; set; }
 
     public TimeSpan TotalTime { get; set; }
 
@@ -35,7 +35,7 @@ public class TourLog
 
     public const int MaxUserNameLength = 100;
 
-    public const int MinRating = 0;
+    public const short MinRating = 0;
 
-    public const int MaxRating = 10;
+    public const short MaxRating = 10;
 }

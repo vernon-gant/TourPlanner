@@ -17,5 +17,6 @@ public static class TourServiceCollectionExtension
             { TransportType.Bicycle, "cycling-regular" },
             { TransportType.Bike, "cycling-electric" }
         });
+        serviceCollection.AddScoped<TourService, DefaultTourService>();
     }
 }
