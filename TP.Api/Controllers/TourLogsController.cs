@@ -1,6 +1,8 @@
-﻿using FluentValidation;
+﻿using AutoMapper;
+using FluentValidation;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OData.Deltas;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Results;
@@ -23,6 +25,7 @@ public class TourLogsController(
     TourChangeRepository tourChangeRepository,
     TourLogService tourLogService,
     IValidator<TourLogDTO> tourLogDtoValidator,
+    IMapper mapper,
     ILogger<ToursController> logger) : ODataController
 {
     [EnableQuery(AllowedQueryOptions = AllowedQueryOptions.All)]
@@ -30,15 +33,17 @@ public class TourLogsController(
     [HttpGet("tour-logs({id})")]
     [ProducesResponseType(typeof(TourLog), Status200OK)]
     [ProducesDefaultResponseType(typeof(ProblemDetails))]
-    public SingleResult<TourLog> Get([FromODataUri] Guid id) => SingleResult.Create(tourLogQueryRepository.GetTourByIdQueryable(id));
+    public SingleResult<TourLog> Get([FromODataUri] Guid id) => SingleResult.Create(tourLogQueryRepository.GetTourLogByIdQueryable(id));
 
     [EnableQuery(AllowedQueryOptions = AllowedQueryOptions.All)]
     [HttpGet("tour-logs")]
     [ProducesResponseType(typeof(TourLog), Status200OK)]
     [ProducesDefaultResponseType(typeof(ProblemDetails))]
-    public IQueryable<TourLog> Get() => tourLogQueryRepository.GetAllToursQueryable();
+    public IQueryable<TourLog> Get() => tourLogQueryRepository.GetAllTourLogsQueryable();
 
     [HttpPost("tour-logs/{tourId}")]
+    [ProducesResponseType(typeof(TourLog), Status201Created)]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
     public async Task<IActionResult> Post(Guid tourId, [FromBody] TourLogDTO tourLogDto)
     {
         try
@@ -64,4 +69,37 @@ public class TourLogsController(
             throw;
         }
     }
+
+    [HttpPut("tour-logs/{tourLogId}")]
+    [ProducesResponseType(Status204NoContent)]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
+    public async Task<IActionResult> Put(Guid tourLogId, [FromBody] TourLogDTO tourLogDto)
+    {
+        ValidationResult validationResult = await tourLogDtoValidator.ValidateAsync(tourLogDto);
+
+        if (!validationResult.IsValid) return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
+
+        TourLog? existingTourLog = await tourLogQueryRepository.GetTourLogByIdAsync(tourLogId);
+
+        if (existingTourLog == null) return NotFound();
+
+        await tourLogChangeRepository.UpdateTourLogAsync(mapper.Map(tourLogDto, existingTourLog));
+
+        return NoContent();
+    }
+
+    [HttpDelete("tour-logs/{tourLogId}")]
+    [ProducesResponseType(Status204NoContent)]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
+    public async Task<IActionResult> Delete(Guid tourLogId)
+    {
+        TourLog? existingTourLog = await tourLogQueryRepository.GetTourLogByIdAsync(tourLogId);
+
+        if (existingTourLog == null) return NotFound();
+
+        await tourLogChangeRepository.DeleteTourLogAsync(tourLogId);
+
+        return NoContent();
+    }
+
 }

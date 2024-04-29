@@ -7,7 +7,7 @@ namespace TP.DataAccess.Repositories.Concrete;
 
 public class EfCoreTourLogQueryRepository(AppDbContext dbContext, ILogger<EfCoreTourLogQueryRepository> logger) : TourLogQueryRepository
 {
-    public async ValueTask<List<TourLog>> GetAllToursAsync()
+    public async ValueTask<List<TourLog>> GetAllTourLogsAsync()
     {
         try
         {
@@ -20,7 +20,7 @@ public class EfCoreTourLogQueryRepository(AppDbContext dbContext, ILogger<EfCore
         }
     }
 
-    public async ValueTask<TourLog?> GetTourByIdAsync(Guid tourLogId)
+    public async ValueTask<TourLog?> GetTourLogByIdAsync(Guid tourLogId)
     {
         try
         {
@@ -33,7 +33,7 @@ public class EfCoreTourLogQueryRepository(AppDbContext dbContext, ILogger<EfCore
         }
     }
 
-    public IQueryable<TourLog> GetAllToursQueryable()
+    public IQueryable<TourLog> GetAllTourLogsQueryable()
     {
         try
         {
@@ -46,7 +46,7 @@ public class EfCoreTourLogQueryRepository(AppDbContext dbContext, ILogger<EfCore
         }
     }
 
-    public IQueryable<TourLog> GetTourByIdQueryable(Guid tourLogId)
+    public IQueryable<TourLog> GetTourLogByIdQueryable(Guid tourLogId)
     {
         try
         {

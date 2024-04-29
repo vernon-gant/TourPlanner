@@ -1,14 +1,14 @@
 ﻿using TP.Domain;
 
-namespace TP.DataAccess;
+namespace TP.DataAccess.Repositories;
 
 public interface TourLogQueryRepository
 {
-    ValueTask<List<TourLog>> GetAllToursAsync();
+    ValueTask<List<TourLog>> GetAllTourLogsAsync();
 
-    ValueTask<TourLog?> GetTourByIdAsync(Guid tourLogId);
+    ValueTask<TourLog?> GetTourLogByIdAsync(Guid tourLogId);
 
-    IQueryable<TourLog> GetAllToursQueryable();
+    IQueryable<TourLog> GetAllTourLogsQueryable();
 
-    IQueryable<TourLog> GetTourByIdQueryable(Guid tourLogId);
+    IQueryable<TourLog> GetTourLogByIdQueryable(Guid tourLogId);
 }
