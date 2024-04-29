@@ -21,9 +21,9 @@ public class Tour
 
     public int TransportTypeInt => (int)TransportType;
 
-    public string StartDescription { get; set; } = string.Empty;
+    public string Start { get; set; } = string.Empty;
 
-    public string EndDescription { get; set; } = string.Empty;
+    public string End { get; set; } = string.Empty;
 
     public decimal Distance { get; set; }
 

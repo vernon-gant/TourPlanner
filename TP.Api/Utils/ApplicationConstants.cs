@@ -2,5 +2,5 @@
 
 public static class ApplicationConstants
 {
-    public const string OdataDefaultPrefix = "v1/odata";
+    public const string OdataDefaultPrefix = "v1";
 }

@@ -12,6 +12,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\TP.Database\TP.Database.csproj" />
       <ProjectReference Include="..\TP.Domain\TP.Domain.csproj" />
     </ItemGroup>
 

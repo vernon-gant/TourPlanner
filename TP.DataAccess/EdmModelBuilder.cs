@@ -27,8 +27,8 @@ public static class EdmModelBuilder
         tourModelConfig.Property(tour => tour.Name);
         tourModelConfig.EnumProperty(tour => tour.TransportType);
         tourModelConfig.Property(tour => tour.TransportTypeInt);
-        tourModelConfig.Property(tour => tour.StartDescription);
-        tourModelConfig.Property(tour => tour.EndDescription);
+        tourModelConfig.Property(tour => tour.Start);
+        tourModelConfig.Property(tour => tour.End);
         tourModelConfig.Property(tour => tour.Distance);
         tourModelConfig.Property(tour => tour.EstimatedTime);
         tourModelConfig.Property(tour => tour.Popularity);
