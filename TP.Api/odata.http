@@ -1,0 +1,1 @@
+﻿http://localhost:5000/v1/odata/tours?$expand=tourLogs
