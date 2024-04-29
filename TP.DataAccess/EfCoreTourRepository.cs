@@ -63,6 +63,8 @@ public class EfCoreTourRepository(AppDbContext dbContext, ILogger<EfCoreTourRepo
     {
         try
         {
+            if (tour.Id == Guid.Empty) tour.Id = Guid.NewGuid();
+
             dbContext.Tours.Add(tour);
             await dbContext.SaveChangesAsync();
             return tour;

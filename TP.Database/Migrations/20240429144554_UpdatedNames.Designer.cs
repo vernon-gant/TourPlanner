@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TP.Database;
@@ -11,9 +12,11 @@ using TP.Database;
 namespace TP.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240429144554_UpdatedNames")]
+    partial class UpdatedNames
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -41,8 +44,8 @@ namespace TP.Database.Migrations
                         .HasColumnType("text");
 
                     b.Property<decimal>("Distance")
-                        .HasPrecision(10, 3)
-                        .HasColumnType("numeric(10,3)");
+                        .HasPrecision(10, 6)
+                        .HasColumnType("numeric(10,6)");
 
                     b.Property<string>("End")
                         .IsRequired()

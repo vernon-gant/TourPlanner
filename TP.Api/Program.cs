@@ -1,4 +1,6 @@
+using System.Globalization;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
@@ -6,6 +8,7 @@ using Microsoft.Extensions.Options;
 using Serilog;
 using TP.Api.Configuration;
 using TP.Api.Http;
+using TP.Api.OpenRoute;
 using TP.Api.Utils;
 using TP.DataAccess;
 using TP.Database;
@@ -18,6 +21,13 @@ builder.Host.UseSerilog((context, configuration) => configuration.ReadFrom.Confi
 builder.Services.Configure<OpenRouteConfiguration>(builder.Configuration.GetSection("OpenRouteConfiguration"));
 
 builder.Services.AddProblemDetails();
+builder.Services.Configure<RequestLocalizationOptions>(options =>
+{
+    var invariantCulture = CultureInfo.InvariantCulture;
+    options.DefaultRequestCulture = new RequestCulture(invariantCulture);
+    options.SupportedCultures = new List<CultureInfo> { invariantCulture };
+    options.SupportedUICultures = new List<CultureInfo> { invariantCulture };
+});
 builder.Services.AddFluentValidationAutoValidation().AddFluentValidationClientsideAdapters();
 builder.Services.AddRouting();
 builder.Services.AddControllers().AddOData(options =>
@@ -35,9 +45,10 @@ builder.Services.AddHttpClient<OpenRouteClient, HttpOpenRouteClient>()
     .ConfigureHttpClient((serviceProvider, client) =>
     {
         OpenRouteConfiguration openRouteConfig = serviceProvider.GetRequiredService<IOptions<OpenRouteConfiguration>>().Value;
-        client.BaseAddress = new Uri("https://api.openrouteservice.org/v2/directions");
+        client.BaseAddress = new Uri("https://api.openrouteservice.org");
         client.DefaultRequestHeaders.Add("Authorization", openRouteConfig.ApiKey);
     });
+builder.Services.AddScoped<OpenRouteService, DefaultOpenRouteService>();
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDataAccess();
 builder.Services.AddTour();
@@ -54,23 +65,11 @@ else
     app.UseExceptionHandler();
 }
 
-app.UseStatusCodePages(async context =>
-{
-    context.HttpContext.Response.ContentType = "application/problem+json";
-
-    var problemDetails = new ProblemDetails
-    {
-        Status = context.HttpContext.Response.StatusCode,
-        Title = "A problem occurred with your request.",
-        Detail = $"The requested endpoint {context.HttpContext.Request.Path} returned status code {context.HttpContext.Response.StatusCode}."
-    };
-
-    await context.HttpContext.Response.WriteAsJsonAsync(problemDetails);
-});
-
+app.UseStatusCodePages();
 app.UseSerilogRequestLogging();
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseRequestLocalization(app.Services.GetRequiredService<IOptions<RequestLocalizationOptions>>().Value);
 app.UseRouting();
 app.MapControllers();
 

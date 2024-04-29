@@ -1,4 +1,5 @@
-﻿using TP.Service.Tour;
+﻿using System.Text.Json.Serialization;
+using TP.Service.Tour;
 using TP.Utils;
 
 namespace TP.Api.Http;
@@ -16,8 +17,8 @@ public class HttpOpenRouteClient(HttpClient httpClient, ILogger<HttpOpenRouteCli
     {
         try
         {
-            logger.LogDebug("Starting reverse geocode for: {Description}", description);
-            HttpResponseMessage response = await httpClient.GetAsync($"/geocode/search?text={Uri.EscapeDataString(description)}");
+            logger.LogInformation("Starting reverse geocode for: {Description}", description);
+            HttpResponseMessage response = await httpClient.GetAsync($"geocode/search?text={Uri.EscapeDataString(description)}");
 
             if (!response.IsSuccessStatusCode)
             {
@@ -27,16 +28,16 @@ public class HttpOpenRouteClient(HttpClient httpClient, ILogger<HttpOpenRouteCli
 
             ReverseGeocodeResponse? geocodeResponse = await response.Content.ReadFromJsonAsync<ReverseGeocodeResponse>();
 
-            if (geocodeResponse is null || geocodeResponse.Features.Features.Count == 0)
+            if (geocodeResponse is null || geocodeResponse.Features.Count == 0)
             {
                 logger.LogWarning("No geocode data returned for {Description}", description);
                 return new ApiResponse<GeoPoint>(false, response.StatusCode);
             }
 
-            GeoFeature firstFeature = geocodeResponse.Features.Features.First();
+            GeoFeature firstFeature = geocodeResponse.Features.First();
             GeoPoint geoPoint = new (Latitude: firstFeature.Geometry.Coordinates[1], Longitude: firstFeature.Geometry.Coordinates[0]);
 
-            logger.LogDebug("Geocode success for {Description}: {Latitude}, {Longitude}", description, geoPoint.Latitude, geoPoint.Longitude);
+            logger.LogInformation("Geocode success for {Description}: {Latitude}, {Longitude}", description, geoPoint.Latitude, geoPoint.Longitude);
 
             return new ApiResponse<GeoPoint>(true, response.StatusCode, geoPoint);
         }
@@ -51,8 +52,8 @@ public class HttpOpenRouteClient(HttpClient httpClient, ILogger<HttpOpenRouteCli
     {
         try
         {
-            string requestUri = $"/{profile}?start={start.Longitude},{start.Latitude}&end={end.Longitude},{end.Latitude}";
-            logger.LogDebug("Sending routing request for profile {Profile}: {RequestUri}", profile, requestUri);
+            string requestUri = $"v2/directions/{profile}?start={start.Longitude},{start.Latitude}&end={end.Longitude},{end.Latitude}";
+            logger.LogInformation("Sending routing request for profile {Profile}: {RequestUri}", profile, requestUri);
 
             HttpResponseMessage response = await httpClient.GetAsync(requestUri);
 
@@ -70,10 +71,10 @@ public class HttpOpenRouteClient(HttpClient httpClient, ILogger<HttpOpenRouteCli
             }
 
             Feature firstFeature = directionsResponse.Features.First();
-            decimal distanceM = firstFeature.Properties.Summary.Distance_M;
-            decimal durationS = firstFeature.Properties.Summary.Duration_S;
+            decimal distanceM = firstFeature.Properties.Segments.First().Distance;
+            decimal durationS = firstFeature.Properties.Segments.First().Duration;
 
-            logger.LogDebug("Routing success for start {StartLatLon} to end {EndLatLon}: Distance {Distance} meters, Duration {Duration} seconds", start, end, distanceM, durationS);
+            logger.LogInformation("Routing success for start {StartLatLon} to end {EndLatLon}: Distance {Distance} meters, Duration {Duration} seconds", start, end, distanceM, durationS);
 
             return new ApiResponse<RouteInformation>(true, response.StatusCode, new (distanceM, durationS));
         }
@@ -86,11 +87,6 @@ public class HttpOpenRouteClient(HttpClient httpClient, ILogger<HttpOpenRouteCli
 }
 
 public class ReverseGeocodeResponse
-{
-    public GeoFeatureCollection Features { get; set; } = null!;
-}
-
-public class GeoFeatureCollection
 {
     public List<GeoFeature> Features { get; set; } = null!;
 }
@@ -117,12 +113,12 @@ public class Feature
 
 public class Properties
 {
-    public Summary Summary { get; set; }
+    public List<Segment> Segments { get; set; }
 }
 
-public class Summary
+public class Segment
 {
-    public decimal Distance_M { get; set; }
+    public decimal Distance { get; set; }
 
-    public decimal Duration_S { get; set; }
+    public decimal Duration { get; set; }
 }
