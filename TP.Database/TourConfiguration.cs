@@ -17,6 +17,7 @@ public class TourConfiguration : IEntityTypeConfiguration<Tour>
         builder.Property(tour => tour.TransportType).HasConversion<string>();
         builder.Property(tour => tour.CreatedOn).HasDefaultValueSql("timezone('utc', CURRENT_TIMESTAMP)");
         builder.Ignore(tour => tour.TransportTypeInt);
+        builder.Property(tour => tour.UnprocessedLogsCounter);
         builder.Property(tour => tour.Popularity).HasConversion<string>();
 
         builder.HasMany(tour => tour.TourLogs)

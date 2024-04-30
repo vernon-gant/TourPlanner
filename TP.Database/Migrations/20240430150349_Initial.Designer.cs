@@ -12,8 +12,8 @@ using TP.Database;
 namespace TP.Database.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240429174255_RenamedToMeters")]
-    partial class RenamedToMeters
+    [Migration("20240430150349_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

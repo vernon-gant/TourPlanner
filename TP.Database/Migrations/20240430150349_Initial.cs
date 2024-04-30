@@ -19,13 +19,14 @@ namespace TP.Database.Migrations
                     Description = table.Column<string>(type: "text", nullable: false),
                     Name = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
                     TransportType = table.Column<string>(type: "text", nullable: false),
-                    StartDescription = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    EndDescription = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    Distance = table.Column<decimal>(type: "numeric(10,6)", precision: 10, scale: 6, nullable: false),
+                    Start = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    End = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    DistanceMeters = table.Column<decimal>(type: "numeric(10,3)", precision: 10, scale: 3, nullable: false),
                     EstimatedTime = table.Column<TimeSpan>(type: "interval", nullable: false),
-                    Popularity = table.Column<short>(type: "smallint", nullable: true),
+                    Popularity = table.Column<string>(type: "text", nullable: true),
                     ChildFriendliness = table.Column<bool>(type: "boolean", nullable: true),
-                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "timezone('utc', CURRENT_TIMESTAMP)")
+                    CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "timezone('utc', CURRENT_TIMESTAMP)"),
+                    UnprocessedLogsCounter = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -40,7 +41,7 @@ namespace TP.Database.Migrations
                     UserName = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     Comment = table.Column<string>(type: "text", nullable: false),
                     Difficulty = table.Column<string>(type: "text", nullable: false),
-                    TotalDistance = table.Column<decimal>(type: "numeric(10,6)", precision: 10, scale: 6, nullable: false),
+                    TotalDistanceMeters = table.Column<decimal>(type: "numeric(12,3)", precision: 12, scale: 3, nullable: false),
                     TotalTime = table.Column<TimeSpan>(type: "interval", nullable: false),
                     Rating = table.Column<short>(type: "smallint", nullable: false),
                     CreatedOn = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "timezone('utc', CURRENT_TIMESTAMP)"),
