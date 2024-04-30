@@ -14,3 +14,14 @@ public class ValidationResult
         ErrorMessage = errorMessage
     };
 }
+
+public class OperationResult<T>
+{
+    public bool IsOk { get; protected set; } = true;
+
+    public T? Result { get; protected set; }
+
+    public static OperationResult<T> Ok(T result) => new() { Result = result };
+
+    public static OperationResult<T> Error() => new() { IsOk = false, };
+}

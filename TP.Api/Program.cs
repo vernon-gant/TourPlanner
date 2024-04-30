@@ -11,6 +11,7 @@ using TP.Api.Configuration;
 using TP.Api.Utils;
 using TP.DataAccess;
 using TP.Database;
+using TP.Export;
 using TP.OpenRoute;
 using TP.Service.Tour;
 using TP.Service.TourLog;
@@ -65,6 +66,7 @@ builder.Services.AddDataAccess();
 builder.Services.AddTour();
 builder.Services.AddTourLog();
 builder.Services.AddOpenRoute();
+builder.Services.AddExport();
 
 var app = builder.Build();
 

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Logging;
 using TP.Database;
 using TP.Domain;
 
-namespace TP.DataAccess;
+namespace TP.DataAccess.Repositories.Concrete;
 
 public class EfCoreTourQueryRepository(AppDbContext dbContext, ILogger<EfCoreTourQueryRepository> logger) : TourQueryRepository
 {
@@ -29,6 +29,21 @@ public class EfCoreTourQueryRepository(AppDbContext dbContext, ILogger<EfCoreTou
         catch (Exception ex)
         {
             logger.LogError(ex, "Error retrieving tour with ID: {TourId}", id);
+            throw;
+        }
+    }
+
+    public async ValueTask<List<Tour>> GetByIds(HashSet<Guid> tourIds, bool withTours)
+    {
+        try
+        {
+            if (withTours) return await dbContext.Tours.Where(tour => tourIds.Contains(tour.Id)).Include(tour => tour.TourLogs).ToListAsync();
+
+            return await dbContext.Tours.Where(tour => tourIds.Contains(tour.Id)).ToListAsync();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error retrieving all tours");
             throw;
         }
     }

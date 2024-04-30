@@ -1,17 +1,20 @@
 ﻿using FluentValidation;
-using FluentValidation.Results;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
+using Microsoft.IdentityModel.Tokens;
 using TP.Api.Utils;
-using TP.DataAccess;
 using TP.DataAccess.Repositories;
 using TP.Domain;
+using TP.Export;
 using TP.OpenRoute;
 using TP.Service.Tour;
+using TP.Utils;
 using static Microsoft.AspNetCore.Http.StatusCodes;
+using ValidationResult = FluentValidation.Results.ValidationResult;
 
 namespace TP.Api.Controllers;
 
@@ -19,6 +22,7 @@ namespace TP.Api.Controllers;
 public class ToursController(
     TourQueryRepository tourQueryRepository,
     TourChangeRepository tourChangeRepository,
+    IEnumerable<TourExporter> tourExporters,
     TourService tourService,
     ILogger<ToursController> logger,
     IValidator<TourDTO> tourDtoValidator,
@@ -50,7 +54,8 @@ public class ToursController(
 
             if (!validationResult.IsValid) return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
 
-            RouteInformationResult routeInformationResult = await openRouteService.GetRouteInformationAsync(tourDto.Start, tourDto.End, tourDto.TransportType);
+            RouteInformationResult routeInformationResult =
+                await openRouteService.GetRouteInformationAsync(tourDto.Start, tourDto.End, tourDto.TransportType);
 
             if (!routeInformationResult.IsOk) return BadRequest(routeInformationResult.ErrorMessage);
 
@@ -99,5 +104,34 @@ public class ToursController(
         await tourChangeRepository.DeleteTourAsync(tourId);
 
         return NoContent();
+    }
+
+    [HttpPost("tours/export")]
+    [ProducesResponseType(typeof(FileStreamResult), Status200OK)]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
+    [Produces(ContentTypes.Xlsx)]
+    public async Task<IActionResult> Delete([FromBody] List<Guid> tourIds, [FromQuery] bool withTours, string format)
+    {
+        if (format.IsNullOrEmpty()) return BadRequest("Fill out the format of destination file");
+
+        if (tourIds.IsNullOrEmpty()) return BadRequest("There must be at least one tour");
+
+        HashSet<Guid> uniqueTourIds = tourIds.ToHashSet();
+
+        if (uniqueTourIds.Count != tourIds.Count) return BadRequest("Duplicate tour ids, recheck them");
+
+        List<Tour> foundTours = await tourQueryRepository.GetByIds(uniqueTourIds, withTours);
+
+        if (foundTours.Count != tourIds.Count) return BadRequest("Some of the tours do not exist, recheck the payload");
+
+        TourExporter? exporter = tourExporters.FirstOrDefault(tourExporter => tourExporter.CanHandle(format));
+
+        if (exporter is null) return BadRequest("File format is not supported");
+
+        OperationResult<ExportResult> exportResult = exporter.ExportTours(foundTours,withTours);
+
+        if (!exportResult.IsOk) return BadRequest("Somethings went wrong during export, try again");
+
+        return File(exportResult.Result!.FileStream, exportResult.Result.ContentType, "export.xlsx");
     }
 }
