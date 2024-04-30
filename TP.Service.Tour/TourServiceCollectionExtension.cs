@@ -8,7 +8,6 @@ public static class TourServiceCollectionExtension
     public static void AddTour(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddAutoMapper(typeof(TourServiceCollectionExtension));
-        serviceCollection.AddSingleton<OpenRouteValidator, DefaultOpenRouteValidator>();
         serviceCollection.AddSingleton<Dictionary<TransportType, string>>(_ => new Dictionary<TransportType, string>
         {
             { TransportType.Foot, "foot-walking" },

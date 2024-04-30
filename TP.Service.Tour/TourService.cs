@@ -14,8 +14,6 @@ public class DefaultTourService(IMapper mapper) : TourService
     public Tour CreateTour(TourDTO tourDto, RouteInformation routeInformation)
     {
         Tour newTour = mapper.Map<Tour>(tourDto);
-        newTour.DistanceMeters = routeInformation.DistanceM;
-        newTour.EstimatedTime = TimeSpan.FromSeconds((double)routeInformation.EstimatedDurationS);
-        return newTour;
+        return mapper.Map(routeInformation, newTour);;
     }
 }

@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
 using Microsoft.AspNetCore.OData.Results;
 using Microsoft.AspNetCore.OData.Routing.Controllers;
-using TP.Api.OpenRoute;
 using TP.Api.Utils;
 using TP.DataAccess;
 using TP.DataAccess.Repositories;
 using TP.Domain;
+using TP.OpenRoute;
 using TP.Service.Tour;
 using static Microsoft.AspNetCore.Http.StatusCodes;
 

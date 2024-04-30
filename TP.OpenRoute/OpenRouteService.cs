@@ -1,9 +1,8 @@
-﻿using TP.Api.Http;
+﻿using Microsoft.Extensions.Logging;
 using TP.Domain;
-using TP.Service.Tour;
 using TP.Utils;
 
-namespace TP.Api.OpenRoute;
+namespace TP.OpenRoute;
 
 public interface OpenRouteService
 {
@@ -16,13 +15,13 @@ public class DefaultOpenRouteService(Dictionary<TransportType, string> typeToPro
     {
         try
         {
-            ApiResponse<GeoPoint> startReverseGeocodingResponse = await openRouteClient.ReverseGeocodeAsync(start);
+            ApiResponse<Coordinates> startReverseGeocodingResponse = await openRouteClient.ReverseGeocodeAsync(start);
 
             ValidationResult startValidationResult = openRouteValidator.ValidateReverseGeocoding(start, startReverseGeocodingResponse);
 
             if (!startValidationResult.IsValid) return RouteInformationResult.Invalid(startValidationResult.ErrorMessage!);
 
-            ApiResponse<GeoPoint> endReverseGeocodingResponse = await openRouteClient.ReverseGeocodeAsync(end);
+            ApiResponse<Coordinates> endReverseGeocodingResponse = await openRouteClient.ReverseGeocodeAsync(end);
 
             ValidationResult endValidationResult = openRouteValidator.ValidateReverseGeocoding(end, endReverseGeocodingResponse);
 
@@ -42,26 +41,4 @@ public class DefaultOpenRouteService(Dictionary<TransportType, string> typeToPro
             throw;
         }
     }
-}
-
-public class RouteInformationResult
-{
-    public bool IsOk { get; set; }
-
-    public RouteInformation? RouteInformation { get; set; }
-
-    public string? ErrorMessage { get; set; }
-
-    public static RouteInformationResult Ok(RouteInformation routeInformation) => new ()
-    {
-        IsOk = true,
-        RouteInformation = routeInformation
-    };
-
-    public static RouteInformationResult Invalid(string errorMessage) => new()
-    {
-        IsOk = false,
-        ErrorMessage = errorMessage
-    };
-
 }

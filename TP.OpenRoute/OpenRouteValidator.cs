@@ -1,18 +1,19 @@
 ﻿using System.Net;
+using TP.Service.Tour;
 using TP.Utils;
 
-namespace TP.Service.Tour;
+namespace TP.OpenRoute;
 
 public interface OpenRouteValidator
 {
-    ValidationResult ValidateReverseGeocoding(string description, ApiResponse<GeoPoint> reverseGeocodingResponse);
+    ValidationResult ValidateReverseGeocoding(string description, ApiResponse<Coordinates> reverseGeocodingResponse);
 
     ValidationResult ValidateRouteInformation(string start, string end, ApiResponse<RouteInformation> routeInformationResponse);
 }
 
 public class DefaultOpenRouteValidator : OpenRouteValidator
 {
-    public ValidationResult ValidateReverseGeocoding(string description, ApiResponse<GeoPoint> reverseGeocodingResponse)
+    public ValidationResult ValidateReverseGeocoding(string description, ApiResponse<Coordinates> reverseGeocodingResponse)
     {
         if (reverseGeocodingResponse.IsSuccess) return ValidationResult.Valid();
 
@@ -29,9 +30,9 @@ public class DefaultOpenRouteValidator : OpenRouteValidator
         if (routeInformationResponse.ResponseCode is HttpStatusCode.OK or HttpStatusCode.NotFound)
             return ValidationResult.WithError($"No route found between {start} and {end}. Try something else!");
 
-        if (routeInformationResponse.ResponseCode is HttpStatusCode.RequestEntityTooLarge)
-            return ValidationResult.WithError("Too big route! Must be less than 6000km.");
+        if (routeInformationResponse.ErrorResponse?.Error.Code == OpenRouteErrorCodes.TooBigDistance2004)
+            return ValidationResult.WithError("Too big distance between points! Must be less than 6000km.");
 
-        return ValidationResult.WithError("Something went wrong while processing the request, try again later");
+        return ValidationResult.WithError("Route in this tour could not be computed, try again");
     }
 }

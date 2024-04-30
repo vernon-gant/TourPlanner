@@ -1,8 +1,6 @@
 using System.Globalization;
 using FluentValidation;
-using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Localization;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -10,11 +8,10 @@ using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using TP.Api.Configuration;
-using TP.Api.Http;
-using TP.Api.OpenRoute;
 using TP.Api.Utils;
 using TP.DataAccess;
 using TP.Database;
+using TP.OpenRoute;
 using TP.Service.Tour;
 using TP.Service.TourLog;
 
@@ -62,12 +59,12 @@ builder.Services.AddHttpClient<OpenRouteClient, HttpOpenRouteClient>()
         client.BaseAddress = new Uri("https://api.openrouteservice.org");
         client.DefaultRequestHeaders.Add("Authorization", openRouteConfig.ApiKey);
     });
-builder.Services.AddScoped<OpenRouteService, DefaultOpenRouteService>();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 builder.Services.AddDataAccess();
 builder.Services.AddTour();
 builder.Services.AddTourLog();
+builder.Services.AddOpenRoute();
 
 var app = builder.Build();
 

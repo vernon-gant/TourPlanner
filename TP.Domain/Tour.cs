@@ -1,4 +1,6 @@
-﻿namespace TP.Domain;
+﻿using TP.Utils;
+
+namespace TP.Domain;
 
 public enum TransportType
 {
@@ -23,17 +25,21 @@ public class Tour
 {
     public Guid Id { get; set; }
 
-    public string Description { get; set; } = string.Empty;
+    public required string Description { get; set; }
 
-    public string Name { get; set; } = string.Empty;
+    public required string Name { get; set; }
 
     public TransportType TransportType { get; set; }
 
     public int TransportTypeInt => (int)TransportType;
 
-    public string Start { get; set; } = string.Empty;
+    public required string Start { get; set; }
 
-    public string End { get; set; } = string.Empty;
+    public required Coordinates StartCoordinates { get; set; }
+
+    public required string End { get; set; }
+
+    public required Coordinates EndCoordinates { get; set; }
 
     public decimal DistanceMeters { get; set; }
 
