@@ -1,7 +1,5 @@
 ﻿using Npoi.Mapper.Attributes;
 using TP.Domain;
-using TP.Utils;
-using TransportType = System.Net.TransportType;
 
 namespace TP.Export;
 
@@ -17,20 +15,24 @@ public class TourExportModel
 
     public required string Start { get; set; }
 
-    public required Coordinates StartCoordinates { get; set; }
+    public required decimal StartLatitude { get; set; }
+
+    public required decimal StartLongitude { get; set; }
 
     public required string End { get; set; }
 
-    public required Coordinates EndCoordinates { get; set; }
+    public required decimal EndLatitude { get; set; }
+
+    public required decimal EndLongitude { get; set; }
 
     public decimal DistanceMeters { get; set; }
 
-    public TimeSpan EstimatedTime { get; set; }
+    public long EstimatedTime { get; set; }
 
     public Popularity? Popularity { get; set; }
 
     public string? ChildFriendliness { get; set; }
 
     [Ignore]
-    public IList<TourLog> TourLogs { get; set; } = new List<TourLog>();
+    public List<TourLog> TourLogs { get; set; } = new();
 }

@@ -12,9 +12,12 @@ using TP.Api.Utils;
 using TP.DataAccess;
 using TP.Database;
 using TP.Export;
+using TP.Import;
 using TP.OpenRoute;
 using TP.Service.Tour;
 using TP.Service.TourLog;
+
+System.Text.Encoding.RegisterProvider(System.Text.CodePagesEncodingProvider.Instance);
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -67,6 +70,7 @@ builder.Services.AddTour();
 builder.Services.AddTourLog();
 builder.Services.AddOpenRoute();
 builder.Services.AddExport();
+builder.Services.AddImport();
 
 var app = builder.Build();
 

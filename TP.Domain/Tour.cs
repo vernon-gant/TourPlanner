@@ -13,12 +13,12 @@ public enum TransportType
 
 public enum Popularity
 {
-    NotPopular,
-    SlightlyPopular,
-    ModeratelyPopular,
-    Popular,
-    HighlyPopular,
-    ExtremelyPopular
+    NotPopular = 100,
+    SlightlyPopular = 200,
+    ModeratelyPopular = 300,
+    Popular = 400,
+    HighlyPopular = 500,
+    ExtremelyPopular = 600
 }
 
 public class Tour

@@ -1,5 +1,4 @@
 ﻿using FluentValidation;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.OData.Formatter;
 using Microsoft.AspNetCore.OData.Query;
@@ -10,6 +9,7 @@ using TP.Api.Utils;
 using TP.DataAccess.Repositories;
 using TP.Domain;
 using TP.Export;
+using TP.Import;
 using TP.OpenRoute;
 using TP.Service.Tour;
 using TP.Utils;
@@ -23,6 +23,7 @@ public class ToursController(
     TourQueryRepository tourQueryRepository,
     TourChangeRepository tourChangeRepository,
     IEnumerable<TourExporter> tourExporters,
+    IEnumerable<TourImporter> tourImporters,
     TourService tourService,
     ILogger<ToursController> logger,
     IValidator<TourDTO> tourDtoValidator,
@@ -110,7 +111,7 @@ public class ToursController(
     [ProducesResponseType(typeof(FileStreamResult), Status200OK)]
     [ProducesDefaultResponseType(typeof(ProblemDetails))]
     [Produces(ContentTypes.Xlsx)]
-    public async Task<IActionResult> Delete([FromBody] List<Guid> tourIds, [FromQuery] bool withTours, string format)
+    public async Task<IActionResult> Export([FromBody] List<Guid> tourIds, [FromQuery] bool withTours, string format)
     {
         if (format.IsNullOrEmpty()) return BadRequest("Fill out the format of destination file");
 
@@ -133,5 +134,27 @@ public class ToursController(
         if (!exportResult.IsOk) return BadRequest("Somethings went wrong during export, try again");
 
         return File(exportResult.Result!.FileStream, exportResult.Result.ContentType, "export.xlsx");
+    }
+
+    [HttpPost("tours/import")]
+    [ProducesResponseType(typeof(List<Tour>),Status200OK)]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
+    public async ValueTask<IActionResult> Import([FromForm] FileForm fileForm, string format)
+    {
+        if (fileForm.SubmittedFile.Length == 0) return BadRequest("Empty file");
+
+        if (format.IsNullOrEmpty()) return BadRequest("Fill out the format of destination file");
+
+        TourImporter? importer = tourImporters.FirstOrDefault(tourImporter => tourImporter.CanHandle(format));
+
+        if (importer is null) return BadRequest("File format is not supported");
+
+        OperationResult<List<Tour>> importResult = importer.Import(fileForm.SubmittedFile.OpenReadStream());
+
+        if (!importResult.IsOk) return BadRequest("Somethings went wrong during import, try again");
+
+        await tourChangeRepository.CreateRangeAsync(importResult.Result!);
+
+        return Ok();
     }
 }

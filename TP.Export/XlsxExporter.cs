@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using Microsoft.Extensions.Logging;
-using Npoi.Mapper;
 using TP.Domain;
 using TP.Utils;
 using Mapper = Npoi.Mapper.Mapper;
@@ -52,5 +51,5 @@ public class XlsxExporter(IMapper mapper, ILogger<XlsxExporter> logger) : TourEx
                 return tourLogExportModel;
             })).ToList();
 
-    public bool CanHandle(string format) => format == ExportFileFormats.XlsxFormat;
+    public bool CanHandle(string format) => format == ExportImportFileFormats.XlsxFormat;
 }

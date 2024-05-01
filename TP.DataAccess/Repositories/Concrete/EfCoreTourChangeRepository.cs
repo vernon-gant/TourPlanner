@@ -13,9 +13,30 @@ public class EfCoreTourChangeRepository(AppDbContext dbContext, ILogger<EfCoreTo
         {
             if (tour.Id == Guid.Empty) tour.Id = Guid.NewGuid();
 
-            dbContext.Tours.Add(tour);
+            await dbContext.Tours.AddAsync(tour);
             await dbContext.SaveChangesAsync();
             return tour;
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Error adding tour");
+            throw;
+        }
+    }
+
+    public async ValueTask<List<Tour>> CreateRangeAsync(List<Tour> tours)
+    {
+        try
+        {
+            tours = tours.Select(tour =>
+            {
+                if (tour.Id == Guid.Empty) tour.Id = Guid.NewGuid();
+                return tour;
+            }).ToList();
+
+            await dbContext.Tours.AddRangeAsync(tours);
+            await dbContext.SaveChangesAsync();
+            return tours;
         }
         catch (Exception ex)
         {

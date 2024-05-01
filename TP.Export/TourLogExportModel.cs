@@ -14,7 +14,7 @@ public class TourLogExportModel
 
     public decimal TotalDistanceMeters { get; set; }
 
-    public TimeSpan TotalTime { get; set; }
+    public long TotalTime { get; set; }
 
     public short Rating { get; set; }
 }

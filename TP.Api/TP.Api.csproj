@@ -31,6 +31,7 @@
       <ProjectReference Include="..\TP.DataAccess\TP.DataAccess.csproj" />
       <ProjectReference Include="..\TP.Database\TP.Database.csproj" />
       <ProjectReference Include="..\TP.Export\TP.Export.csproj" />
+      <ProjectReference Include="..\TP.Import\TP.Import.csproj" />
       <ProjectReference Include="..\TP.OpenRoute\TP.OpenRoute.csproj" />
       <ProjectReference Include="..\TP.Service.TourLog\TP.Service.TourLog.csproj" />
       <ProjectReference Include="..\TP.Service.Tour\TP.Service.Tour.csproj" />
