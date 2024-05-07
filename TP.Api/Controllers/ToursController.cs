@@ -55,8 +55,7 @@ public class ToursController(
 
             if (!validationResult.IsValid) return BadRequest(validationResult.Errors.Select(e => e.ErrorMessage));
 
-            RouteInformationResult routeInformationResult =
-                await openRouteService.GetRouteInformationAsync(tourDto.Start, tourDto.End, tourDto.TransportType);
+            RouteInformationResult routeInformationResult = await openRouteService.GetRouteInformationAsync(tourDto.Start, tourDto.End, tourDto.TransportType);
 
             if (!routeInformationResult.IsOk) return BadRequest(routeInformationResult.ErrorMessage);
 
