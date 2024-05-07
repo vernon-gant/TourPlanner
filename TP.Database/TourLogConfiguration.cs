@@ -9,7 +9,6 @@ public class TourLogConfiguration : IEntityTypeConfiguration<TourLog>
     public void Configure(EntityTypeBuilder<TourLog> builder)
     {
         builder.HasKey(tourLog => tourLog.Id);
-        builder.Property(tourLog => tourLog.UserName).IsRequired().HasMaxLength(100);
         builder.Property(tourLog => tourLog.Comment).HasColumnType("text");
         builder.Property(tourLog => tourLog.Difficulty).HasConversion<string>();
         builder.Property(tourLog => tourLog.TotalDistanceMeters).HasPrecision(12, 3);

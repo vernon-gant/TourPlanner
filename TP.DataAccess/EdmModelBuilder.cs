@@ -48,7 +48,6 @@ public static class EdmModelBuilder
         EntityTypeConfiguration<TourLog> tourLogModelConfig = builder.EntitySet<TourLog>("tour-logs").EntityType;
         tourLogModelConfig.Name = "tour-log";
         tourLogModelConfig.HasKey(tourLog => tourLog.Id);
-        tourLogModelConfig.Property(tourLog => tourLog.UserName);
         tourLogModelConfig.Property(tourLog => tourLog.Comment);
         tourLogModelConfig.EnumProperty(tourLog => tourLog.Difficulty);
         tourLogModelConfig.Property(tourLog => tourLog.DifficultyInt);
