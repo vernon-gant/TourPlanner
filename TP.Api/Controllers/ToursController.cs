@@ -110,7 +110,7 @@ public class ToursController(
     [ProducesResponseType(typeof(FileStreamResult), Status200OK)]
     [ProducesDefaultResponseType(typeof(ProblemDetails))]
     [Produces(ContentTypes.Xlsx)]
-    public async Task<IActionResult> Export([FromBody] List<Guid> tourIds, [FromQuery] bool withTours, string format)
+    public async Task<IActionResult> Export([FromBody] List<Guid> tourIds, [FromQuery] bool withTourLogs, string format)
     {
         if (format.IsNullOrEmpty()) return BadRequest("Fill out the format of destination file");
 
@@ -120,7 +120,7 @@ public class ToursController(
 
         if (uniqueTourIds.Count != tourIds.Count) return BadRequest("Duplicate tour ids, recheck them");
 
-        List<Tour> foundTours = await tourQueryRepository.GetByIds(uniqueTourIds, withTours);
+        List<Tour> foundTours = await tourQueryRepository.GetByIds(uniqueTourIds, withTourLogs);
 
         if (foundTours.Count != tourIds.Count) return BadRequest("Some of the tours do not exist, recheck the payload");
 
@@ -128,9 +128,9 @@ public class ToursController(
 
         if (exporter is null) return BadRequest("File format is not supported");
 
-        OperationResult<ExportResult> exportResult = exporter.ExportTours(foundTours,withTours);
+        OperationResult<ExportResult> exportResult = exporter.ExportTours(foundTours,withTourLogs);
 
-        if (!exportResult.IsOk) return BadRequest("Somethings went wrong during export, try again");
+        if (!exportResult.IsOk) return BadRequest("Something went wrong during export, try again");
 
         return File(exportResult.Result!.FileStream, exportResult.Result.ContentType, "export.xlsx");
     }

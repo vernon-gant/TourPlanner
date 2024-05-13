@@ -6,8 +6,6 @@ public class TourLogExportModel
 {
     public int TourNumber { get; set; }
 
-    public string UserName { get; set; } = string.Empty;
-
     public string Comment { get; set; } = string.Empty;
 
     public Difficulty Difficulty { get; set; }

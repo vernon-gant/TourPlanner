@@ -16,6 +16,8 @@ public class XlsxExporter(IMapper mapper, ILogger<XlsxExporter> logger) : TourEx
             Mapper excelMapper = new Mapper();
             List<TourExportModel> tourExportModels = ToursToExportModels(tours, withTourLogs);
 
+            if (withTourLogs && !AnyTourLogs(tourExportModels)) return OperationResult<ExportResult>.Error();
+
             excelMapper.Put(tourExportModels, "Tours");
 
             if (withTourLogs) excelMapper.Put(TourLogsToExportModels(tourExportModels), "TourLogs");
@@ -52,4 +54,6 @@ public class XlsxExporter(IMapper mapper, ILogger<XlsxExporter> logger) : TourEx
             })).ToList();
 
     public bool CanHandle(string format) => format == ExportImportFileFormats.XlsxFormat;
+
+    private bool AnyTourLogs(List<TourExportModel> tourExportModels) => tourExportModels.Any(tourExportModel => tourExportModel.TourLogs.Count != 0);
 }

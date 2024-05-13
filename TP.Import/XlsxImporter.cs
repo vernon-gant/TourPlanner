@@ -110,7 +110,6 @@ public class XlsxImporter(IMapper mapper, ILogger<XlsxImporter> logger) : TourIm
             tourLogExportModels.Add(new TourLogExportModel
             {
                 TourNumber = (int)excelDataReader.GetDouble(0),
-                UserName = excelDataReader.GetString(1),
                 Comment = excelDataReader.GetString(2),
                 Difficulty = GetDifficulty(excelDataReader.GetString(3)),
                 TotalDistanceMeters = (decimal)excelDataReader.GetDouble(4),
