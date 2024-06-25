@@ -11,6 +11,7 @@ using TP.Domain;
 using TP.Export;
 using TP.Import;
 using TP.OpenRoute;
+using TP.Report;
 using TP.Service.Tour;
 using TP.Utils;
 using static Microsoft.AspNetCore.Http.StatusCodes;
@@ -30,6 +31,7 @@ public class ToursController(
     IValidator<TourUpdateDTO> tourUpdateDtoValidator,
     FullTextSearchRepository fullTextSearchRepository,
     TourLoader tourLoader,
+    ReportCoordinator reportCoordinator,
     OpenRouteService openRouteService) : ODataController
 {
     [EnableQuery(AllowedQueryOptions = AllowedQueryOptions.All)]
@@ -176,5 +178,24 @@ public class ToursController(
             DatabaseError => StatusCode(500, "A database error occurred."),
             _ => StatusCode(500, "An unknown error occurred."),
         };
+    }
+
+    [HttpPost("tours/report")]
+    [ProducesResponseType(typeof(FileStreamResult), Status200OK)]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
+    [Produces(ContentTypes.Xlsx)]
+    public async ValueTask<IActionResult> Report([FromBody] ReportRequest reportRequest)
+    {
+        ReportCreationResult reportCreationResult = reportCoordinator.CreateReportFromRequest(reportRequest);
+
+        if (reportCreationResult is InvalidReportType) return BadRequest("Invalid report type");
+
+        if (reportCreationResult is InvalidReportPayload) return BadRequest("Invalid report payload");
+
+        ReportGenerationResult reportGenerationResult = await reportCoordinator.GenerateReport();
+
+        if (reportGenerationResult is not GeneratedOk ok) return BadRequest("Error generating report");
+
+        return File(ok.FileStream, ContentTypes.Pdf, "report.pdf");
     }
 }

@@ -14,6 +14,7 @@ using TP.Database;
 using TP.Export;
 using TP.Import;
 using TP.OpenRoute;
+using TP.Report;
 using TP.Service.Tour;
 using TP.Service.TourLog;
 
@@ -70,6 +71,7 @@ builder.Services.AddTourLog();
 builder.Services.AddOpenRoute();
 builder.Services.AddExport();
 builder.Services.AddImport();
+builder.Services.AddReporting();
 
 var app = builder.Build();
 

@@ -33,6 +33,7 @@
       <ProjectReference Include="..\TP.Export\TP.Export.csproj" />
       <ProjectReference Include="..\TP.Import\TP.Import.csproj" />
       <ProjectReference Include="..\TP.OpenRoute\TP.OpenRoute.csproj" />
+      <ProjectReference Include="..\TP.Report\TP.Report.csproj" />
       <ProjectReference Include="..\TP.Service.TourLog\TP.Service.TourLog.csproj" />
       <ProjectReference Include="..\TP.Service.Tour\TP.Service.Tour.csproj" />
       <ProjectReference Include="..\TP.Utils\TP.Utils.csproj" />
