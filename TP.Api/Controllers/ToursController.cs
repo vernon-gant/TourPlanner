@@ -138,7 +138,7 @@ public class ToursController(
 
         if (!exportResult.IsOk) return BadRequest("Something went wrong during export, try again");
 
-        return File(exportResult.Result!.FileStream, exportResult.Result.ContentType, "export.xlsx");
+        return File(exportResult.Result!.FileStream, exportResult.Result.ContentType, $"import.{format}");
     }
 
     [HttpPost("tours/import")]

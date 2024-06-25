@@ -8,5 +8,6 @@ public static class ImportCollectionExtension
     {
         serviceCollection.AddAutoMapper(typeof(ImportCollectionExtension));
         serviceCollection.AddSingleton<TourImporter, XlsxImporter>();
+        serviceCollection.AddSingleton<TourImporter, CsvImporter>();
     }
 }

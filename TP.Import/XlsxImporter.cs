@@ -1,136 +1,95 @@
 ﻿using AutoMapper;
 using ExcelDataReader;
 using Microsoft.Extensions.Logging;
-using TP.Domain;
 using TP.Export;
 using TP.Utils;
 
 namespace TP.Import;
 
-public class XlsxImporter(IMapper mapper, ILogger<XlsxImporter> logger) : TourImporter
+public class XlsxImporter(IMapper mapper, ILogger<XlsxImporter> logger) : TourImporter(mapper)
 {
-    private static readonly List<string> Headers =
-    [
-        "TourNumber", "Description", "Name", "TransportType", "Start", "StartLatitude", "StartLongitude", "End",
-        "EndLatitude", "EndLongitude", "RouteGeometry", "DistanceMeters", "EstimatedTime", "Popularity", "ChildFriendliness"
-    ];
+    private IExcelDataReader _excelDataReader = null!;
 
-    public OperationResult<List<Tour>> Import(Stream fileStream)
+    protected override OperationResult<List<TourExportModel>> ReadTours()
     {
         try
         {
-            IExcelDataReader excelDataReader = ExcelReaderFactory.CreateReader(fileStream);
+            _excelDataReader = ExcelReaderFactory.CreateReader(_fileStream);
 
-            excelDataReader.Read();
+            _excelDataReader.Read();
 
-            if (!ValidHeaders(excelDataReader)) return OperationResult<List<Tour>>.Error();
+            if (!ValidTourHeaders()) return OperationResult<List<TourExportModel>>.Error();
 
-            List<TourExportModel> importedTours = ReadTours(excelDataReader);
-
-            excelDataReader.NextResult();
-
-            excelDataReader.Read();
-
-            List<TourLogExportModel> importedTourLogs = ReadTourLogs(excelDataReader);
-
-            List<Tour> tours = importedTours.Select(tourExportModel =>
+            List<TourExportModel> tourExportModels = new();
+            while (_excelDataReader.Read())
             {
-                tourExportModel.TourLogs.AddRange(importedTourLogs
-                    .Where(tourLogImportInfo => tourLogImportInfo.TourNumber == tourExportModel.TourNumber)
-                    .Select(mapper.Map<TourLog>)
-                    .ToList());
-                return tourExportModel;
-            }).Select(mapper.Map<Tour>).ToList();
+                tourExportModels.Add(new TourExportModel
+                                     {
+                                         TourNumber = (int)_excelDataReader.GetDouble(0),
+                                         Description = _excelDataReader.GetString(1),
+                                         Name = _excelDataReader.GetString(2),
+                                         TransportType = GetTransportType(_excelDataReader.GetString(3)),
+                                         Start = _excelDataReader.GetString(4),
+                                         StartLatitude = (decimal)_excelDataReader.GetDouble(5),
+                                         StartLongitude = (decimal)_excelDataReader.GetDouble(6),
+                                         End = _excelDataReader.GetString(7),
+                                         EndLatitude = (decimal)_excelDataReader.GetDouble(8),
+                                         EndLongitude = (decimal)_excelDataReader.GetDouble(9),
+                                         RouteGeometry = _excelDataReader.GetString(10),
+                                         DistanceMeters = (decimal)_excelDataReader.GetDouble(11),
+                                         EstimatedTime = (long)_excelDataReader.GetDouble(12),
+                                         Popularity = GetPopularity(_excelDataReader.GetString(13)),
+                                         ChildFriendliness = _excelDataReader.GetString(14)
+                                     });
+            }
 
-            return OperationResult<List<Tour>>.Ok(tours);
+            return OperationResult<List<TourExportModel>>.Ok(tourExportModels);
         }
         catch (Exception e)
         {
-            logger.LogError(e, "Error during import");
-            return OperationResult<List<Tour>>.Error();
+            logger.LogError(e, "Error during tour import");
+            return OperationResult<List<TourExportModel>>.Error();
         }
     }
 
-    private List<TourExportModel> ReadTours(IExcelDataReader excelDataReader)
+    protected override OperationResult<List<TourLogExportModel>> ReadTourLogs()
     {
-        List<TourExportModel> tourExportModels = new();
-        while (excelDataReader.Read())
+        try
         {
-            tourExportModels.Add(new TourExportModel
+            _excelDataReader.NextResult();
+
+            _excelDataReader.Read();
+
+            List<TourLogExportModel> tourLogExportModels = new();
+            while (_excelDataReader.Read())
             {
-                TourNumber = (int)excelDataReader.GetDouble(0),
-                Description = excelDataReader.GetString(1),
-                Name = excelDataReader.GetString(2),
-                TransportType = GetTransportType(excelDataReader.GetString(3)),
-                Start = excelDataReader.GetString(4),
-                StartLatitude = (decimal)excelDataReader.GetDouble(5),
-                StartLongitude = (decimal)excelDataReader.GetDouble(6),
-                End = excelDataReader.GetString(7),
-                EndLatitude = (decimal)excelDataReader.GetDouble(8),
-                EndLongitude = (decimal)excelDataReader.GetDouble(9),
-                RouteGeometry = excelDataReader.GetString(10),
-                DistanceMeters = (decimal)excelDataReader.GetDouble(11),
-                EstimatedTime = (long)excelDataReader.GetDouble(12),
-                Popularity = GetPopularity(excelDataReader.GetString(13)),
-                ChildFriendliness = excelDataReader.GetString(14)
-            });
+                tourLogExportModels.Add(new TourLogExportModel
+                                        {
+                                            TourNumber = (int)_excelDataReader.GetDouble(0),
+                                            Comment = _excelDataReader.GetString(1),
+                                            Difficulty = GetDifficulty(_excelDataReader.GetString(2)),
+                                            TotalDistanceMeters = (decimal)_excelDataReader.GetDouble(3),
+                                            TotalTime = (long)_excelDataReader.GetDouble(4),
+                                            Rating = (short)_excelDataReader.GetDouble(5)
+                                        });
+            }
+
+            return OperationResult<List<TourLogExportModel>>.Ok(tourLogExportModels);
         }
-
-        return tourExportModels;
-    }
-
-    private static TransportType GetTransportType(string transportType) => transportType switch
-    {
-        "Foot" => TransportType.Foot,
-        "Car" => TransportType.Car,
-        "Truck" => TransportType.Truck,
-        "Bicycle" => TransportType.Bicycle,
-        "Bike" => TransportType.Bike,
-        _ => throw new ArgumentOutOfRangeException(nameof(transportType), transportType, null)
-    };
-
-    private static Popularity? GetPopularity(string? transportType) => transportType switch
-    {
-        "NotPopular" => Popularity.Popular,
-        "SlightlyPopular" => Popularity.SlightlyPopular,
-        "ModeratelyPopular" => Popularity.ModeratelyPopular,
-        "Popular" => Popularity.Popular,
-        "HighlyPopular" => Popularity.HighlyPopular,
-        "ExtremelyPopular" => Popularity.ExtremelyPopular,
-        _ => null
-    };
-
-    private bool ValidHeaders(IExcelDataReader excelDataReader) => Enumerable.Range(0, Headers.Count)
-        .Select(excelDataReader.GetString).SequenceEqual(Headers);
-
-    private List<TourLogExportModel> ReadTourLogs(IExcelDataReader excelDataReader)
-    {
-        List<TourLogExportModel> tourLogExportModels = new();
-        while (excelDataReader.Read())
+        catch (Exception e)
         {
-            tourLogExportModels.Add(new TourLogExportModel
-            {
-                TourNumber = (int)excelDataReader.GetDouble(0),
-                Comment = excelDataReader.GetString(1),
-                Difficulty = GetDifficulty(excelDataReader.GetString(2)),
-                TotalDistanceMeters = (decimal)excelDataReader.GetDouble(3),
-                TotalTime = (long)excelDataReader.GetDouble(4),
-                Rating = (short)excelDataReader.GetDouble(5)
-            });
+            logger.LogError(e, "Error during tour log import");
+            return OperationResult<List<TourLogExportModel>>.Error();
         }
-
-        return tourLogExportModels;
     }
 
-    private Difficulty GetDifficulty(string difficulty) => difficulty switch
-    {
-        "VeryHard" => Difficulty.VeryHard,
-        "Hard" => Difficulty.Hard,
-        "Normal" => Difficulty.Normal,
-        "Easy" => Difficulty.Easy,
-        "VeryEasy" => Difficulty.VeryEasy,
-        _ => throw new ArgumentException()
-    };
+    protected override bool ValidTourHeaders() => Enumerable.Range(0, ExportHeaders.TourHeaders.Count)
+                                                            .Select(_excelDataReader.GetString)
+                                                            .SequenceEqual(ExportHeaders.TourHeaders);
 
-    public bool CanHandle(string format) => format == ExportImportFileFormats.XlsxFormat;
+    protected override bool ValidTourLogHeaders() => Enumerable.Range(0, ExportHeaders.TourHeaders.Count)
+                                                               .Select(_excelDataReader.GetString)
+                                                               .SequenceEqual(ExportHeaders.TourHeaders);
+
+    public override bool CanHandle(string format) => format == ExportImportFileFormats.XlsxFormat;
 }

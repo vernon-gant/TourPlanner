@@ -1,57 +1,29 @@
-﻿using AutoMapper;
-using Microsoft.Extensions.Logging;
-using TP.Domain;
+﻿using Microsoft.Extensions.Logging;
 using TP.Utils;
 using Mapper = Npoi.Mapper.Mapper;
 
 namespace TP.Export;
 
-public class XlsxExporter(IMapper mapper, ILogger<XlsxExporter> logger) : TourExporter
+public class XlsxExporter(TourMapper tourMapper, ILogger<XlsxExporter> logger) : TourExporter(tourMapper, logger)
 {
-    public OperationResult<ExportResult> ExportTours(List<Tour> tours, bool withTourLogs)
+    private readonly Mapper _excelMapper = new();
+
+    public override bool CanHandle(string format) => format == "xlsx";
+
+    protected override string GetContentType() => ContentTypes.Xlsx;
+
+    protected override void WriteTourExportModels(List<TourExportModel> tourExportModels)
     {
-        try
-        {
-            string tempExportFilePath = Path.GetTempFileName().Replace(".tmp",".xlsx");
-            Mapper excelMapper = new Mapper();
-            List<TourExportModel> tourExportModels = ToursToExportModels(tours, withTourLogs);
-
-            excelMapper.Put(tourExportModels, "Tours");
-
-            if (withTourLogs && AnyTourLogs(tourExportModels)) excelMapper.Put(TourLogsToExportModels(tourExportModels), "TourLogs");
-
-            excelMapper.Save(tempExportFilePath, false);
-
-            return OperationResult<ExportResult>.Ok(new ExportResult(new FileStream(tempExportFilePath, FileMode.Open, FileAccess.Read, FileShare.Read),ContentTypes.Xlsx));
-        }
-        catch (Exception e)
-        {
-            logger.LogError(e, "Error during tour export");
-            return OperationResult<ExportResult>.Error();
-        }
+        _excelMapper.Put(tourExportModels, "Tours");
     }
 
-    private List<TourExportModel> ToursToExportModels(List<Tour> tours, bool withTourLogs) => tours
-        .Select((tour, idx) => mapper.Map<TourExportModel>(tour,
-            context => { context.AfterMap((_, exportModel) => exportModel.TourNumber = idx); }))
-        .Select(tourExportModel =>
-        {
-            if (withTourLogs) return tourExportModel;
-            tourExportModel.Popularity = null;
-            tourExportModel.ChildFriendliness = null;
-            return tourExportModel;
-        })
-        .ToList();
+    protected override void WriteTourLogs(List<TourLogExportModel> tourLogs)
+    {
+        _excelMapper.Put(tourLogs, "TourLogs");
+    }
 
-    private List<TourLogExportModel> TourLogsToExportModels(List<TourExportModel> tourExportModels) => tourExportModels
-        .SelectMany(tourExportModel => mapper.Map<List<TourLogExportModel>>(tourExportModel.TourLogs).Select(
-            tourLogExportModel =>
-            {
-                tourLogExportModel.TourNumber = tourExportModel.TourNumber;
-                return tourLogExportModel;
-            })).ToList();
-
-    public bool CanHandle(string format) => format == ExportImportFileFormats.XlsxFormat;
-
-    private bool AnyTourLogs(List<TourExportModel> tourExportModels) => tourExportModels.Any(tourExportModel => tourExportModel.TourLogs.Count != 0);
+    protected override void Save()
+    {
+        _excelMapper.Save(_tempExportFilePath, false);
+    }
 }
