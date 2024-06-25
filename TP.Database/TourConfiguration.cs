@@ -29,7 +29,7 @@ public class TourConfiguration : IEntityTypeConfiguration<Tour>
 
         builder.HasGeneratedTsVectorColumn(
                 tour => tour.SearchVector, "english",
-                tour => new { tour.Name, tour.Description, tour.Start, tour.End })
+                tour => new { tour.Name, tour.Description, tour.Start, tour.End, tour.ChildFriendliness, tour.Popularity })
            .HasIndex(m => m.SearchVector).HasMethod("GIN");
     }
 }
