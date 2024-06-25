@@ -29,6 +29,7 @@ public class ToursController(
     IValidator<TourDTO> tourDtoValidator,
     IValidator<TourUpdateDTO> tourUpdateDtoValidator,
     FullTextSearchRepository fullTextSearchRepository,
+    TourLoader tourLoader,
     OpenRouteService openRouteService) : ODataController
 {
     [EnableQuery(AllowedQueryOptions = AllowedQueryOptions.All)]
@@ -124,6 +125,8 @@ public class ToursController(
         List<Tour> foundTours = await tourQueryRepository.GetByIds(uniqueTourIds, withTourLogs);
 
         if (foundTours.Count != tourIds.Count) return BadRequest("Some of the tours do not exist, recheck the payload");
+
+        if (withTourLogs) await tourLoader.LoadTourLogsAsync(foundTours);
 
         TourExporter? exporter = tourExporters.FirstOrDefault(tourExporter => tourExporter.CanHandle(format));
 

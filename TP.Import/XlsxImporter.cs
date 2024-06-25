@@ -12,7 +12,7 @@ public class XlsxImporter(IMapper mapper, ILogger<XlsxImporter> logger) : TourIm
     private static readonly List<string> Headers =
     [
         "TourNumber", "Description", "Name", "TransportType", "Start", "StartLatitude", "StartLongitude", "End",
-        "EndLatitude", "EndLongitude", "DistanceMeters", "EstimatedTime", "Popularity", "ChildFriendliness"
+        "EndLatitude", "EndLongitude", "RouteGeometry", "DistanceMeters", "EstimatedTime", "Popularity", "ChildFriendliness"
     ];
 
     public OperationResult<List<Tour>> Import(Stream fileStream)
@@ -56,7 +56,7 @@ public class XlsxImporter(IMapper mapper, ILogger<XlsxImporter> logger) : TourIm
         List<TourExportModel> tourExportModels = new();
         while (excelDataReader.Read())
         {
-            tourExportModels.Add(new TourExportModel()
+            tourExportModels.Add(new TourExportModel
             {
                 TourNumber = (int)excelDataReader.GetDouble(0),
                 Description = excelDataReader.GetString(1),
@@ -68,10 +68,11 @@ public class XlsxImporter(IMapper mapper, ILogger<XlsxImporter> logger) : TourIm
                 End = excelDataReader.GetString(7),
                 EndLatitude = (decimal)excelDataReader.GetDouble(8),
                 EndLongitude = (decimal)excelDataReader.GetDouble(9),
-                DistanceMeters = (decimal)excelDataReader.GetDouble(10),
-                EstimatedTime = (long)excelDataReader.GetDouble(11),
-                Popularity = GetPopularity(excelDataReader.GetString(12)),
-                ChildFriendliness = excelDataReader.GetString(13)
+                RouteGeometry = excelDataReader.GetString(10),
+                DistanceMeters = (decimal)excelDataReader.GetDouble(11),
+                EstimatedTime = (long)excelDataReader.GetDouble(12),
+                Popularity = GetPopularity(excelDataReader.GetString(13)),
+                ChildFriendliness = excelDataReader.GetString(14)
             });
         }
 
@@ -110,11 +111,11 @@ public class XlsxImporter(IMapper mapper, ILogger<XlsxImporter> logger) : TourIm
             tourLogExportModels.Add(new TourLogExportModel
             {
                 TourNumber = (int)excelDataReader.GetDouble(0),
-                Comment = excelDataReader.GetString(2),
-                Difficulty = GetDifficulty(excelDataReader.GetString(3)),
-                TotalDistanceMeters = (decimal)excelDataReader.GetDouble(4),
-                TotalTime = (long)excelDataReader.GetDouble(5),
-                Rating = (short)excelDataReader.GetDouble(6)
+                Comment = excelDataReader.GetString(1),
+                Difficulty = GetDifficulty(excelDataReader.GetString(2)),
+                TotalDistanceMeters = (decimal)excelDataReader.GetDouble(3),
+                TotalTime = (long)excelDataReader.GetDouble(4),
+                Rating = (short)excelDataReader.GetDouble(5)
             });
         }
 

@@ -25,6 +25,8 @@ public class TourExportModel
 
     public required decimal EndLongitude { get; set; }
 
+    public required string RouteGeometry { get; set; }
+
     public decimal DistanceMeters { get; set; }
 
     public long EstimatedTime { get; set; }

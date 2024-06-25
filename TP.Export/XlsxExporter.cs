@@ -16,11 +16,9 @@ public class XlsxExporter(IMapper mapper, ILogger<XlsxExporter> logger) : TourEx
             Mapper excelMapper = new Mapper();
             List<TourExportModel> tourExportModels = ToursToExportModels(tours, withTourLogs);
 
-            if (withTourLogs && !AnyTourLogs(tourExportModels)) return OperationResult<ExportResult>.Error();
-
             excelMapper.Put(tourExportModels, "Tours");
 
-            if (withTourLogs) excelMapper.Put(TourLogsToExportModels(tourExportModels), "TourLogs");
+            if (withTourLogs && AnyTourLogs(tourExportModels)) excelMapper.Put(TourLogsToExportModels(tourExportModels), "TourLogs");
 
             excelMapper.Save(tempExportFilePath, false);
 
