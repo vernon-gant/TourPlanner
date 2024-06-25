@@ -12,7 +12,7 @@ public class XlsxExporter(TourMapper tourMapper, ILogger<XlsxExporter> logger) :
 
     protected override string GetContentType() => ContentTypes.Xlsx;
 
-    protected override void WriteTourExportModels(List<TourExportModel> tourExportModels)
+    protected override void WriteTours(List<TourExportModel> tourExportModels)
     {
         _excelMapper.Put(tourExportModels, "Tours");
     }

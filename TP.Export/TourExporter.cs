@@ -14,7 +14,7 @@ public abstract class TourExporter(TourMapper tourMapper, ILogger<TourExporter> 
             _tempExportFilePath = Path.GetTempFileName();
             List<TourExportModel> tourExportModels = tourMapper.MapTours(tours, withTourLogs);
 
-            WriteTourExportModels(tourExportModels);
+            WriteTours(tourExportModels);
 
             if (withTourLogs && AnyTourLogs(tourExportModels)) WriteTourLogs(tourMapper.MapTourLogs(tourExportModels));
 
@@ -34,7 +34,7 @@ public abstract class TourExporter(TourMapper tourMapper, ILogger<TourExporter> 
 
     protected abstract string GetContentType();
 
-    protected abstract void WriteTourExportModels(List<TourExportModel> tourExportModels);
+    protected abstract void WriteTours(List<TourExportModel> tourExportModels);
 
     protected abstract void WriteTourLogs(List<TourLogExportModel> tourLogs);
 

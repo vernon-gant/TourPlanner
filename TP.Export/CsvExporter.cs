@@ -15,7 +15,7 @@ public class CsvExporter(TourMapper tourMapper, ILogger<CsvExporter> logger) : T
 
     protected override string GetContentType() => ContentTypes.Csv;
 
-    protected override void WriteTourExportModels(List<TourExportModel> tourExportModels)
+    protected override void WriteTours(List<TourExportModel> tourExportModels)
     {
         _streamWriter = new StreamWriter(_tempExportFilePath);
         _streamWriter.WriteLine(_tourHeaders);
