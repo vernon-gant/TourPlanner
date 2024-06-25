@@ -4,7 +4,7 @@ public interface ReportGenerationResult;
 
 public class GeneratedOk : ReportGenerationResult
 {
-    public required FileStream FileStream { get; set; }
+    public required Stream Stream { get; set; }
 }
 
 public class GenerationFailed : ReportGenerationResult;

@@ -50,15 +50,15 @@ public class DefaultCoordinator(FileHandler fileHandler, DataProvisioner dataPro
     {
         try
         {
-            fileHandler.GenerateFile();
-            reportGenerator.SetFilePath(fileHandler.FilePath);
             ProvisionResult provisionResult = await _report.ProvisionData(dataProvisioner);
 
             if (provisionResult is not ProvisionedOk) return _reportGenerationResult = new GenerationFailed();
 
+            fileHandler.GenerateFile();
+            reportGenerator.SetFilePath(fileHandler.FilePath);
             reportGenerator.Init();
             _report.GenerateReport(reportGenerator);
-            _reportGenerationResult = new GeneratedOk { FileStream = fileHandler.GetFileStream() };
+            _reportGenerationResult = new GeneratedOk { Stream = fileHandler.GetFileStream() };
         }
         catch (Exception e)
         {

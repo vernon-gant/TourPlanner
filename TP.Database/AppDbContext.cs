@@ -4,11 +4,19 @@ using TP.Domain;
 
 namespace TP.Database;
 
-public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
+public class AppDbContext : DbContext
 {
-    public DbSet<Tour> Tours { get; set; }
+    public AppDbContext()
+    {
+    }
 
-    public DbSet<TourLog> TourLogs { get; set; }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+    {
+    }
+
+    public virtual DbSet<Tour> Tours { get; set; }
+
+    public virtual DbSet<TourLog> TourLogs { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

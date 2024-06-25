@@ -8,7 +8,7 @@ public abstract class FileHandler
 
     public abstract void GenerateFile();
 
-    public abstract FileStream GetFileStream();
+    public abstract Stream GetFileStream();
 
     public void DeleteFile()
     {

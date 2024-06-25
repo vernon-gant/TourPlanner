@@ -196,6 +196,6 @@ public class ToursController(
 
         if (reportGenerationResult is not GeneratedOk ok) return BadRequest("Error generating report");
 
-        return File(ok.FileStream, ContentTypes.Pdf, "report.pdf");
+        return File(ok.Stream, ContentTypes.Pdf, "report.pdf");
     }
 }
