@@ -12,5 +12,6 @@ public static class DateAccessServiceCollectionExtension
         serviceCollection.AddScoped<TourChangeRepository, EfCoreTourChangeRepository>();
         serviceCollection.AddScoped<TourLogQueryRepository, EfCoreTourLogQueryRepository>();
         serviceCollection.AddScoped<TourLogChangeRepository, EfCoreTourLogChangeRepository>();
+        serviceCollection.AddScoped<FullTextSearchRepository, EfCoreFullTextSearchRepository>();
     }
 }

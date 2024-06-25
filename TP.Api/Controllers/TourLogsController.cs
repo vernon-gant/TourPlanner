@@ -25,6 +25,7 @@ public class TourLogsController(
     TourChangeRepository tourChangeRepository,
     TourLogService tourLogService,
     IValidator<TourLogDTO> tourLogDtoValidator,
+    FullTextSearchRepository fullTextSearchRepository,
     IMapper mapper,
     ILogger<ToursController> logger) : ODataController
 {
@@ -100,6 +101,29 @@ public class TourLogsController(
         await tourLogChangeRepository.DeleteTourLogAsync(tourLogId);
 
         return NoContent();
+    }
+
+    [HttpGet("tour-logs/search")]
+    [ProducesResponseType(typeof(TourLog), Status200OK)]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
+    public async Task<IActionResult> SearchTourLogs([FromQuery] string query)
+    {
+        if (string.IsNullOrWhiteSpace(query)) return BadRequest("Search query cannot be empty.");
+
+        var searchStatus = await fullTextSearchRepository.SearchTourLogsAsync(query);
+
+        return searchStatus switch
+        {
+            DataAccess.Repositories.Ok => Ok(new { value = fullTextSearchRepository.FoundTourLogs.Select(tourLog => new
+            {
+                tourLog.Comment,
+                tourLog.Tour!.Name,
+                tourLog.TourId,
+                tourLog.CreatedOn
+            })}),
+            DatabaseError => StatusCode(500),
+            _ => StatusCode(500)
+        };
     }
 
 }

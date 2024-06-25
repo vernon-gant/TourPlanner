@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 using TP.Service.Tour;
 using TP.Utils;
-using TP.Utils.OpenRoute;
 
 namespace TP.OpenRoute;
 
@@ -80,7 +79,7 @@ public class HttpOpenRouteClient(HttpClient httpClient, ILogger<HttpOpenRouteCli
 
             logger.LogInformation("Routing success for start {StartLatLon} to end {EndLatLon}: Distance {Distance} meters, Duration {Duration} seconds", startCoordinates, endCoordinates, distanceM, durationS);
 
-            return new ApiResponse<RouteInformation>(true, response.StatusCode, new (distanceM, durationS, startCoordinates,endCoordinates));
+            return new ApiResponse<RouteInformation>(true, response.StatusCode, new (distanceM, durationS, startCoordinates,endCoordinates, PolylineEncoder.Encode(firstFeature.Geometry.Coordinates)));
         }
         catch (Exception ex)
         {

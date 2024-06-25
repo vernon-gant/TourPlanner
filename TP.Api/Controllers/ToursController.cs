@@ -28,6 +28,7 @@ public class ToursController(
     ILogger<ToursController> logger,
     IValidator<TourDTO> tourDtoValidator,
     IValidator<TourUpdateDTO> tourUpdateDtoValidator,
+    FullTextSearchRepository fullTextSearchRepository,
     OpenRouteService openRouteService) : ODataController
 {
     [EnableQuery(AllowedQueryOptions = AllowedQueryOptions.All)]
@@ -128,7 +129,7 @@ public class ToursController(
 
         if (exporter is null) return BadRequest("File format is not supported");
 
-        OperationResult<ExportResult> exportResult = exporter.ExportTours(foundTours,withTourLogs);
+        OperationResult<ExportResult> exportResult = exporter.ExportTours(foundTours, withTourLogs);
 
         if (!exportResult.IsOk) return BadRequest("Something went wrong during export, try again");
 
@@ -136,7 +137,7 @@ public class ToursController(
     }
 
     [HttpPost("tours/import")]
-    [ProducesResponseType(typeof(List<Tour>),Status200OK)]
+    [ProducesResponseType(typeof(List<Tour>), Status200OK)]
     [ProducesDefaultResponseType(typeof(ProblemDetails))]
     public async ValueTask<IActionResult> Import([FromForm] FileForm fileForm, string format)
     {
@@ -155,5 +156,22 @@ public class ToursController(
         await tourChangeRepository.CreateRangeAsync(importResult.Result!);
 
         return Ok();
+    }
+
+    [HttpGet("tours/search")]
+    [ProducesResponseType(typeof(Tour), Status200OK)]
+    [ProducesDefaultResponseType(typeof(ProblemDetails))]
+    public async Task<IActionResult> SearchTours([FromQuery] string query)
+    {
+        if (string.IsNullOrWhiteSpace(query)) return BadRequest("Search query cannot be empty.");
+
+        var searchStatus = await fullTextSearchRepository.SearchToursAsync(query);
+
+        return searchStatus switch
+        {
+            DataAccess.Repositories.Ok => Ok(new { value = fullTextSearchRepository.FoundTours.Select(tour => new { tour.Id, tour.Name, tour.CreatedOn }) }),
+            DatabaseError => StatusCode(500, "A database error occurred."),
+            _ => StatusCode(500, "An unknown error occurred."),
+        };
     }
 }

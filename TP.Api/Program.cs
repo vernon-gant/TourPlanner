@@ -37,8 +37,7 @@ builder.Services.AddRouting();
 builder.Services.AddControllers().AddOData(options =>
 {
     options.TimeZone = TimeZoneInfo.Utc;
-    options.EnableQueryFeatures()
-        .AddRouteComponents(ApplicationConstants.OdataDefaultPrefix, EdmModelBuilder.GetEdmModel());
+    options.EnableQueryFeatures().AddRouteComponents(ApplicationConstants.OdataDefaultPrefix, EdmModelBuilder.GetEdmModel());
 });
 builder.Services.AddValidatorsFromAssemblyContaining<TourDTOValidator>();
 builder.Services.AddValidatorsFromAssemblyContaining<TourLogDTOValidator>();

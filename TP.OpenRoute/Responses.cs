@@ -1,4 +1,4 @@
-﻿namespace TP.Utils.OpenRoute;
+﻿namespace TP.OpenRoute;
 
 public class ReverseGeocodeResponse
 {
@@ -23,11 +23,18 @@ public class DirectionsResponse
 public class Feature
 {
     public Properties Properties { get; set; } = null!;
+
+    public Geometry Geometry { get; set; } = null!;
 }
 
 public class Properties
 {
     public List<Segment> Segments { get; set; } = null!;
+}
+
+public class Geometry
+{
+    public List<List<decimal>> Coordinates { get; set; } = null!;
 }
 
 public class Segment

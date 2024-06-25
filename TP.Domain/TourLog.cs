@@ -1,4 +1,7 @@
-﻿namespace TP.Domain;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using NpgsqlTypes;
+
+namespace TP.Domain;
 
 public enum Difficulty
 {
@@ -17,8 +20,6 @@ public class TourLog
 
     public Difficulty Difficulty { get; set; }
 
-    public int DifficultyInt => (int)Difficulty;
-
     public decimal TotalDistanceMeters { get; set; }
 
     public TimeSpan TotalTime { get; set; }
@@ -26,6 +27,9 @@ public class TourLog
     public short Rating { get; set; }
 
     public DateTime CreatedOn { get; set; }
+
+    [Column("FTX")]
+    public NpgsqlTsVector SearchVector { get; } = null!;
 
     public Tour? Tour { get; set; }
 

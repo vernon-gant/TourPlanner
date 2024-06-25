@@ -26,7 +26,6 @@ public static class EdmModelBuilder
         tourModelConfig.Property(tour => tour.Description);
         tourModelConfig.Property(tour => tour.Name);
         tourModelConfig.EnumProperty(tour => tour.TransportType);
-        tourModelConfig.Property(tour => tour.TransportTypeInt);
         tourModelConfig.Property(tour => tour.Start);
         tourModelConfig.ComplexProperty(tour => tour.StartCoordinates);
         tourModelConfig.Property(tour => tour.End);
@@ -36,7 +35,9 @@ public static class EdmModelBuilder
         tourModelConfig.EnumProperty(tour => tour.Popularity);
         tourModelConfig.Property(tour => tour.ChildFriendliness);
         tourModelConfig.Property(tour => tour.CreatedOn);
+        tourModelConfig.Property(tour => tour.RouteGeometry);
         tourModelConfig.Ignore(tour => tour.UnprocessedLogsCounter);
+        tourModelConfig.Ignore(tour => tour.SearchVector);
 
         tourModelConfig.HasMany(tour => tour.TourLogs);
 
@@ -50,11 +51,11 @@ public static class EdmModelBuilder
         tourLogModelConfig.HasKey(tourLog => tourLog.Id);
         tourLogModelConfig.Property(tourLog => tourLog.Comment);
         tourLogModelConfig.EnumProperty(tourLog => tourLog.Difficulty);
-        tourLogModelConfig.Property(tourLog => tourLog.DifficultyInt);
         tourLogModelConfig.Property(tourLog => tourLog.TotalDistanceMeters);
         tourLogModelConfig.Property(tourLog => tourLog.TotalTime);
         tourLogModelConfig.Property(tourLog => tourLog.Rating);
         tourLogModelConfig.Property(tourLog => tourLog.CreatedOn);
+        tourLogModelConfig.Ignore(tourLog => tourLog.SearchVector);
 
         tourLogModelConfig.HasRequired(tourLog => tourLog.Tour);
 

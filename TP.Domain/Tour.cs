@@ -1,4 +1,6 @@
-﻿using TP.Utils;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using NpgsqlTypes;
+using TP.Utils;
 
 namespace TP.Domain;
 
@@ -31,8 +33,6 @@ public class Tour
 
     public TransportType TransportType { get; set; }
 
-    public int TransportTypeInt => (int)TransportType;
-
     public required string Start { get; set; }
 
     public required Coordinates StartCoordinates { get; set; }
@@ -44,6 +44,8 @@ public class Tour
     public decimal DistanceMeters { get; set; }
 
     public TimeSpan EstimatedTime { get; set; }
+
+    public string RouteGeometry { get; set; }
 
     public Popularity? Popularity { get; set; }
 
@@ -58,4 +60,7 @@ public class Tour
     public const ushort MaxNameLength = 50;
 
     public const ushort MaxPointDescriptionLength = 50;
+
+    [Column("FTX")]
+    public NpgsqlTsVector SearchVector { get; } = null!;
 }

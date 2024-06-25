@@ -14,17 +14,22 @@ public class TourConfiguration : IEntityTypeConfiguration<Tour>
         builder.Property(tour => tour.Start).IsRequired().HasMaxLength(Tour.MaxPointDescriptionLength);
         builder.Property(tour => tour.End).IsRequired().HasMaxLength(Tour.MaxPointDescriptionLength);
         builder.Property(tour => tour.DistanceMeters).IsRequired().HasPrecision(10, 3);
-        builder.Property(tour => tour.TransportType).HasConversion<string>();
+        builder.Property(tour => tour.RouteGeometry).IsRequired().HasColumnType("text");
+        builder.Property(tour => tour.TransportType).IsRequired().HasConversion<int>();
         builder.Property(tour => tour.CreatedOn).HasDefaultValueSql("timezone('utc', CURRENT_TIMESTAMP)");
-        builder.Ignore(tour => tour.TransportTypeInt);
         builder.Property(tour => tour.UnprocessedLogsCounter);
         builder.ComplexProperty(tour => tour.StartCoordinates);
         builder.ComplexProperty(tour => tour.EndCoordinates);
-        builder.Property(tour => tour.Popularity).HasConversion<string>();
+        builder.Property(tour => tour.Popularity).HasConversion<int>();
 
         builder.HasMany(tour => tour.TourLogs)
             .WithOne(tourLog => tourLog.Tour)
             .HasForeignKey(tourLog => tourLog.TourId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        builder.HasGeneratedTsVectorColumn(
+                tour => tour.SearchVector, "english",
+                tour => new { tour.Name, tour.Description, tour.Start, tour.End })
+           .HasIndex(m => m.SearchVector).HasMethod("GIN");
     }
 }

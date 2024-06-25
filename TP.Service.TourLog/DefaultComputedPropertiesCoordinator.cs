@@ -44,7 +44,7 @@ public class DefaultComputedPropertiesCoordinator : TourComputedPropertiesCoordi
             return;
         }
 
-        double averageDifficulty = tour.TourLogs.Average(log => log.DifficultyInt);
+        double averageDifficulty = tour.TourLogs.Average(log => (int) log.Difficulty);
         double averageDurationMinutes = tour.TourLogs.Average(log => log.TotalTime.TotalMinutes);
         decimal averageTotalDistanceMeters = tour.TourLogs.Average(log => log.TotalDistanceMeters);
 

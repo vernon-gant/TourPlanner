@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using NpgsqlTypes;
 using TP.Database;
 
 #nullable disable
@@ -58,17 +59,28 @@ namespace TP.Database.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<string>("Popularity")
+                    b.Property<int?>("Popularity")
+                        .HasColumnType("integer");
+
+                    b.Property<string>("RouteGeometry")
+                        .IsRequired()
                         .HasColumnType("text");
+
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("FTX")
+                        .HasAnnotation("Npgsql:TsVectorConfig", "english")
+                        .HasAnnotation("Npgsql:TsVectorProperties", new[] { "Name", "Description", "Start", "End" });
 
                     b.Property<string>("Start")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("character varying(50)");
 
-                    b.Property<string>("TransportType")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("TransportType")
+                        .HasColumnType("integer");
 
                     b.Property<int>("UnprocessedLogsCounter")
                         .HasColumnType("integer");
@@ -97,6 +109,10 @@ namespace TP.Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("SearchVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
+
                     b.ToTable("Tours");
                 });
 
@@ -115,12 +131,19 @@ namespace TP.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("timezone('utc', CURRENT_TIMESTAMP)");
 
-                    b.Property<string>("Difficulty")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<int>("Difficulty")
+                        .HasColumnType("integer");
 
                     b.Property<short>("Rating")
                         .HasColumnType("smallint");
+
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .IsRequired()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("FTX")
+                        .HasAnnotation("Npgsql:TsVectorConfig", "english")
+                        .HasAnnotation("Npgsql:TsVectorProperties", new[] { "Comment" });
 
                     b.Property<decimal>("TotalDistanceMeters")
                         .HasPrecision(12, 3)
@@ -133,6 +156,10 @@ namespace TP.Database.Migrations
                         .HasColumnType("uuid");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("SearchVector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "GIN");
 
                     b.HasIndex("TourId");
 
