@@ -23,28 +23,30 @@ public class CsvImporter(IMapper mapper, ILogger<CsvImporter> logger) : TourImpo
             while (_streamReader.ReadLine() is { } line && !string.IsNullOrWhiteSpace(line))
             {
                 var values = ParseCsvLine(line);
+                if (values.Count != ExportHeaders.TourHeaders.Count)
+                {
+                    logger.LogWarning("Invalid number of columns in line: {Line}", line);
+                    continue;
+                }
+
                 var tourExportModel = new TourExportModel
-                                      {
-                                          TourNumber = int.Parse(values[0]),
-                                          Description = values[1]
-                                             .Trim('\''),
-                                          Name = values[2]
-                                             .Trim('\''),
-                                          TransportType = GetTransportType(values[3]),
-                                          Start = values[4]
-                                             .Trim('\''),
-                                          StartLatitude = decimal.Parse(values[5]),
-                                          StartLongitude = decimal.Parse(values[6]),
-                                          End = values[7]
-                                             .Trim('\''),
-                                          EndLatitude = decimal.Parse(values[8]),
-                                          EndLongitude = decimal.Parse(values[9]),
-                                          RouteGeometry = values[10],
-                                          DistanceMeters = decimal.Parse(values[11]),
-                                          EstimatedTime = long.Parse(values[12]),
-                                          Popularity = GetPopularity(values[13]),
-                                          ChildFriendliness = values[14]
-                                      };
+                {
+                    TourNumber = int.Parse(values[0]),
+                    Description = values[1].Trim('"'),
+                    Name = values[2].Trim('"'),
+                    TransportType = GetTransportType(values[3]),
+                    Start = values[4].Trim('"'),
+                    StartLatitude = decimal.Parse(values[5]),
+                    StartLongitude = decimal.Parse(values[6]),
+                    End = values[7].Trim('"'),
+                    EndLatitude = decimal.Parse(values[8]),
+                    EndLongitude = decimal.Parse(values[9]),
+                    RouteGeometry = values[10],
+                    DistanceMeters = decimal.Parse(values[11]),
+                    EstimatedTime = long.Parse(values[12]),
+                    Popularity = GetPopularity(values[13]),
+                    ChildFriendliness = values[14]
+                };
                 tourExportModels.Add(tourExportModel);
             }
 
@@ -70,16 +72,21 @@ public class CsvImporter(IMapper mapper, ILogger<CsvImporter> logger) : TourImpo
             while (_streamReader.ReadLine() is { } line && !string.IsNullOrWhiteSpace(line))
             {
                 var values = ParseCsvLine(line);
+                if (values.Count != ExportHeaders.TourLogHeaders.Count)
+                {
+                    logger.LogWarning("Invalid number of columns in line: {Line}", line);
+                    continue;
+                }
+
                 var tourLogExportModel = new TourLogExportModel
-                                         {
-                                             TourNumber = int.Parse(values[0]),
-                                             Comment = values[1]
-                                                .Trim('\''),
-                                             Difficulty = GetDifficulty(values[2]),
-                                             TotalDistanceMeters = decimal.Parse(values[3]),
-                                             TotalTime = long.Parse(values[4]),
-                                             Rating = short.Parse(values[5])
-                                         };
+                {
+                    TourNumber = int.Parse(values[0]),
+                    Comment = values[1].Trim('"'),
+                    Difficulty = GetDifficulty(values[2]),
+                    TotalDistanceMeters = decimal.Parse(values[3]),
+                    TotalTime = long.Parse(values[4]),
+                    Rating = short.Parse(values[5])
+                };
                 tourLogExportModels.Add(tourLogExportModel);
             }
 
@@ -114,20 +121,31 @@ public class CsvImporter(IMapper mapper, ILogger<CsvImporter> logger) : TourImpo
         var inQuotes = false;
         var currentValue = new StringBuilder();
 
-        foreach (var c in line)
+        for (int i = 0; i < line.Length; i++)
         {
-            switch (c)
+            char c = line[i];
+
+            if (c == '"')
             {
-                case ',' when !inQuotes:
-                    values.Add(currentValue.ToString());
-                    currentValue.Clear();
-                    break;
-                case '\'':
-                    inQuotes = !inQuotes;
-                    break;
-                default:
+                if (inQuotes && i < line.Length - 1 && line[i + 1] == '"')
+                {
+                    // If inside quotes and next character is also a quote, it's an escaped quote
                     currentValue.Append(c);
-                    break;
+                    i++; // Skip next character
+                }
+                else
+                {
+                    inQuotes = !inQuotes; // Toggle inQuotes state
+                }
+            }
+            else if (c == ',' && !inQuotes)
+            {
+                values.Add(currentValue.ToString());
+                currentValue.Clear();
+            }
+            else
+            {
+                currentValue.Append(c);
             }
         }
 

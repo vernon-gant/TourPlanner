@@ -21,7 +21,7 @@ public class CsvExporter(TourMapper tourMapper, ILogger<CsvExporter> logger) : T
         _streamWriter.WriteLine(_tourHeaders);
         foreach (var tour in tourExportModels)
         {
-            _streamWriter.WriteLine($"{tour.TourNumber},'{tour.Description}','{tour.Name}',{tour.TransportType},'{tour.Start}',{tour.StartLatitude},{tour.StartLongitude},'{tour.End}',{tour.EndLatitude},{tour.EndLongitude},{tour.RouteGeometry},{tour.DistanceMeters},{tour.EstimatedTime},{tour.Popularity},{tour.ChildFriendliness}");
+            _streamWriter.WriteLine($"{tour.TourNumber},\"{tour.Description}\",\"{tour.Name}\",{tour.TransportType},\"{tour.Start}\",{tour.StartLatitude},{tour.StartLongitude},\"{tour.End}\",{tour.EndLatitude},{tour.EndLongitude},\"{tour.RouteGeometry}\",{tour.DistanceMeters},{tour.EstimatedTime},{tour.Popularity},{tour.ChildFriendliness}");
         }
     }
 
@@ -31,7 +31,7 @@ public class CsvExporter(TourMapper tourMapper, ILogger<CsvExporter> logger) : T
         _streamWriter.WriteLine(_tourLogHeaders);
         foreach (var log in tourLogs)
         {
-            _streamWriter.WriteLine($"{log.TourNumber},'{log.Comment}',{log.Difficulty},{log.TotalDistanceMeters},{log.TotalTime},{log.Rating}");
+            _streamWriter.WriteLine($"{log.TourNumber},\"{log.Comment}\",{log.Difficulty},{log.TotalDistanceMeters},{log.TotalTime},{log.Rating}");
         }
     }
 
