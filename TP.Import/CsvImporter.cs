@@ -143,7 +143,7 @@ public class CsvImporter(IMapper mapper, ILogger<CsvImporter> logger) : TourImpo
                 values.Add(currentValue.ToString());
                 currentValue.Clear();
             }
-            else
+            else 
             {
                 currentValue.Append(c);
             }
